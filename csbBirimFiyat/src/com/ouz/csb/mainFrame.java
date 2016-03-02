@@ -3,11 +3,16 @@ package com.ouz.csb;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -52,6 +57,8 @@ public class mainFrame extends javax.swing.JFrame {
     private static File okunacakExcel;
     private static File yazilacakExcel;
     private static Boolean oturumAcikMi = false;
+    private static String girisYapilanKullaniciAdi = "";
+    private static  Map<String, String[]> data ;
 
     /**
      * Creates new form mainFrame
@@ -61,6 +68,9 @@ public class mainFrame extends javax.swing.JFrame {
 
         // proxy ayarla.
         setProxySettings();
+        
+        data = new TreeMap<String, String[]>();
+        data.put("1", new String[]{"Poz No", "Konu", "Miktar", "Birim Fiyat", "Montaj"});
     }
 
     /**
@@ -96,6 +106,9 @@ public class mainFrame extends javax.swing.JFrame {
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
+            }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
             }
         });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -206,7 +219,17 @@ public class mainFrame extends javax.swing.JFrame {
      */
     private void btnOturumAcActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOturumAcActionPerformed
 
-        String sonuc = logIn();
+        String sonuc = "";
+
+        if (girisYapilanKullaniciAdi.length() <= 0 && !oturumAcikMi) {
+            try {
+                sonuc = logIn();
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(mainFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            sonuc = girisYapilanKullaniciAdi;
+        }
 
         if (!sonuc.equalsIgnoreCase(kullaniciAdi)) {
             islemMesaj += "Sisteme Giriþ Yapýlamadý !\nHata : " + sonuc + "\n";
@@ -227,7 +250,7 @@ public class mainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btnOturumAcActionPerformed
 
     private void btnCikisYapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCikisYapActionPerformed
-        cikisYap();
+       // cikisYap();
         oturumAcikMi = false;
     }//GEN-LAST:event_btnCikisYapActionPerformed
 
@@ -301,10 +324,9 @@ public class mainFrame extends javax.swing.JFrame {
      */
     private void btnIslemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIslemActionPerformed
 
-        String login = logIn();
+        if (loginCookies != null && !loginCookies.isEmpty() && girisYapilanKullaniciAdi.equalsIgnoreCase(kullaniciAdi)) {
 
-        if (login.equalsIgnoreCase(kullaniciAdi)) {
-
+            //String login = logIn();
             if (okunacakExcel != null && okunacakExcel.isFile() && oturumAcikMi) {
 
                 islemMesaj += "Ýþlem Baþladý !\n Biraz zaman alabilir lütfen bekleyiniz !\n";
@@ -335,15 +357,16 @@ public class mainFrame extends javax.swing.JFrame {
                         // Iterator<Cell> cellIterator = row.cellIterator();
                         Cell pozNoSutun = row.getCell(0);
                         Cell fiyatSutun = row.getCell(3);
-                    //while (cellIterator.hasNext()) {
+                        //while (cellIterator.hasNext()) {
                         //Cell cell = cellIterator.next();
                         switch (pozNoSutun.getCellType()) {
                             case Cell.CELL_TYPE_STRING:
 
                                 System.out.println(pozNoSutun.getStringCellValue() + "\t");
 
-                                String birimFiyat = birimFiyatGetir(pozNoSutun.getStringCellValue());
+                                //  String birimFiyat = birimFiyatGetir(pozNoSutun.getStringCellValue());
                                 String digerBirimFiyat = birimFiyatDetayGetir(pozNoSutun.getStringCellValue());
+
                                 break;
                             case Cell.CELL_TYPE_NUMERIC:
                                 System.out.print(pozNoSutun.getNumericCellValue() + "\t");
@@ -360,6 +383,10 @@ public class mainFrame extends javax.swing.JFrame {
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(mainFrame.class.getName()).log(Level.SEVERE, null, ex);
                     islemMesaj += " Excel Çalýþma Sayfasý Okunamadý !\n";
+                } catch (IOException ex) {
+
+                    islemMesaj += " File IOException  !\n";
+                    Logger.getLogger(mainFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
                 txtMesaj.setText(islemMesaj);
@@ -369,11 +396,23 @@ public class mainFrame extends javax.swing.JFrame {
                 islemMesaj += "Oturum açýk olduðundan ve okunacak/yazýlacak excel dosyalarýný seçtiðinizden emin olunuz ! \n";
 
                 txtMesaj.setText(islemMesaj);
-
             }
+
+            //cikisYap();
+        } else {
+            JOptionPane.showMessageDialog(null, "Oturum açtýðýnýzdan emin olunuz ! \n", "HATA", JOptionPane.ERROR_MESSAGE);
+
+            islemMesaj += "Oturum açtýðýnýzdan emin olunuz ! \n";
+
+            txtMesaj.setText(islemMesaj);
         }
-        cikisYap();
     }//GEN-LAST:event_btnIslemActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        cikisYap();
+        oturumAcikMi=false;
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * Get ile istekte bulunup birim ilgili poz numarasýna ait ürün için birim
@@ -398,7 +437,7 @@ public class mainFrame extends javax.swing.JFrame {
 
             System.out.println(docx);
 
-            aramaCookies=docx.cookies();
+            aramaCookies = docx.cookies();
             detayPozNo = pozNo;
 
             URL obj = new URL(url);
@@ -434,8 +473,8 @@ public class mainFrame extends javax.swing.JFrame {
                     if (basariliMi) {
                         result = "Poz No : " + detayPozNo + " detay bulundu !\n";
                         birimFiyat = birimFiyatDetayGetir(detayPozNo);
-                        
-                        System.out.println("Arama Ekraný - Poz No : "+detayPozNo+" Birim Fiyat : "+birimFiyat+"\n");
+
+                        System.out.println("Arama Ekraný - Poz No : " + detayPozNo + " Birim Fiyat : " + birimFiyat + "\n");
                     } else {
                         result = "Sonuç (Detay) BULUNAMADI ! Poz No : " + detayPozNo + "\n";
                     }
@@ -459,22 +498,90 @@ public class mainFrame extends javax.swing.JFrame {
 
     }
 
+    public String writeExcel(String[] yazilacakData, File yazilacakDosya) {
+
+        String sonuc = "";
+
+        //Blank workbook
+        XSSFWorkbook workbook = new XSSFWorkbook();
+
+        //Create a blank sheet
+        XSSFSheet sheet = workbook.createSheet("Employee Data");
+
+        //This data needs to be written (Object[])
+       
+        data.put("2", new String[]{"1", "Amit", "Shukla"});
+        data.put("3", new String[]{"2", "Lokesh", "Gupta"});
+        data.put("4", new String[]{"3", "John", "Adwards"});
+        data.put("5", new String[]{"4", "Brian", "Schultz"});
+
+        //Iterate over data and write to sheet
+        Set<String> keyset = data.keySet();
+        int rownum = 0;
+        for (String key : keyset) {
+            Row row = sheet.createRow(rownum++);
+            Object[] objArr = data.get(key);
+            int cellnum = 0;
+            for (Object obj : objArr) {
+                Cell cell = row.createCell(cellnum++);
+                if (obj instanceof String) {
+                    cell.setCellValue((String) obj);
+                } else if (obj instanceof Integer) {
+                    cell.setCellValue((Integer) obj);
+                }
+            }
+        }
+        try {
+            //Write the workbook in file system
+            FileOutputStream out = new FileOutputStream(yazilacakDosya);
+            workbook.write(out);
+            out.close();
+
+            sonuc = yazilacakDosya.getAbsolutePath() + " dosyasina basariyla yazildi !\n";
+            islemMesaj += sonuc;
+            System.out.println(yazilacakDosya.getAbsolutePath() + "   basariyla yazildi !\n");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        txtMesaj.setText(islemMesaj);
+        return sonuc;
+
+    }
+
     /**
      * arama sayfasinda gelen sonuuca
      *
      * @param detayPozNo : detay poz numarasi
      * @return birimfiyat
      */
-    public String birimFiyatDetayGetir(String detayPozNo) {
+    public String birimFiyatDetayGetir(String detayPozNo) throws IOException {
 
         String birimFiyat = "-";
         String maxBirimFiyat = "-";
+        String konu = "-";
+        String miktar = "AD";
+
+        String[] data = new String[4];
 
         String arananPozNo;
         Boolean basariliMi = false;
 
         String url = siteUrl + aramaDetayUrl;
         String result = " \n";
+
+        File yeniolustur = new File(okunacakExcel.getParent() + "/yeni_excel.xlsx");
+
+        if (yeniolustur.exists()) {
+            System.out.println("Dosya zaten var !\n");
+            yazilacakExcel = yeniolustur;
+        } else if (yeniolustur.createNewFile()) {
+            yazilacakExcel = yeniolustur;
+        } else {
+            System.out.println("Dosya olusturulamadi !\n");
+        }
+
+        FileOutputStream fos = new FileOutputStream(yazilacakExcel);
 
         try {
 
@@ -500,6 +607,8 @@ public class mainFrame extends javax.swing.JFrame {
 
                 Elements satirlar = tables.get(1).select("tr");
 
+                int indis = 1;
+
                 for (Element satir : satirlar) {
 
                     Elements sutunlar = satir.select("td");
@@ -508,14 +617,20 @@ public class mainFrame extends javax.swing.JFrame {
                         basariliMi = true;
                         maxBirimFiyat = sutunlar.get(1).text();
                         birimFiyat = sutunlar.get(2).text();
-                        
-                        System.out.println("Detay Arama Ekraný - Poz No : "+arananPozNo+" Birim Fiyat : "+birimFiyat+" Max Birim Fiyat : "+maxBirimFiyat+"\n");
+
+                        data[0] = String.valueOf(indis);
+                        data[1] = arananPozNo;
+                        data[2] = String.valueOf(maxBirimFiyat);
+                        data[3] = String.valueOf(birimFiyat);
+
+                        writeExcel(data, yazilacakExcel);
+
+                        System.out.println("Detay Arama Ekraný - Poz No : " + arananPozNo + " Birim Fiyat : " + birimFiyat + " Max Birim Fiyat : " + maxBirimFiyat + "\n");
                     }
                     if (basariliMi) {
                         break;
                     }
                 }
-
                 if (basariliMi) {
                     result = maxBirimFiyat + "#" + birimFiyat;
                 } else {
@@ -554,85 +669,106 @@ public class mainFrame extends javax.swing.JFrame {
      *
      * @return 1:BASARILI, 0 HATALI
      */
-    public String logIn() {
+    public String logIn() throws MalformedURLException {
 
         String sonuc = "";
 
         String url = siteUrl + logInUrl;
 
-        try {
+        URL obj = new URL(url);
 
-            URL obj = new URL(url);
+        if (!oturumAcikMi && loginCookies == null) {
 
-            Connection.Response resp = Jsoup.connect(url)
-                    .data("KullaniciAdi", kullaniciAdi)
-                    .data("Sifre", sifre)
-                    .data("gonder", gonder)
-                    .timeout(50000)
+            try{
+            Connection.Response respGet = Jsoup.connect(url)
+                    .timeout(5000)
+                    .userAgent("Mozilla")
                     // and other hidden fields which are being passed in post request.
-                    .method(Connection.Method.POST)
+                    .method(Connection.Method.GET)
                     .execute();
 
-            loginCookies = resp.cookies();
-
-            Document doc = resp.parse();
-
-            System.out.println(doc);
-
-            if (doc != null) {
-                Element context = doc.getElementById("menu");
-
-                Elements links = doc.select("a[href]");
-
-                Element arananLink = null;
-
-                for (Element link : links) {
-                    System.out.println("Link : " + link);
-
-                    if (link.attr("href").equalsIgnoreCase(anasayfaUrl)) {
-                        System.out.println("Kullanýcý Adý >> " + link.text());
-                        arananLink = link;
-                        break;
-                    }
-                }
-
-                // sisteme belirledigimiz kullanici adi ile girilmis ise,
-                if (arananLink.text().equalsIgnoreCase(kullaniciAdi)) {
-                    sonuc = arananLink.text().trim();
-                } else {
-                    sonuc = "Kullanici Adi veya Þifre HATALI !";
-                    islemMesaj += "Kullanici Adi veya Þifre HATALI !";
-                    cikisYap();
-                }
-
-                if (context != null) {
-                    Elements uller = context.select("ul.navbar-nav");// .getElementsByClass("nav navbar-nav");
-
-                    if (uller != null) {
-                        Elements tags = uller.first().getElementsByTag("a");
-
-                        System.out.println("Tags Text : " + tags.text());
-
-                        sonuc = tags.text();
-                    }
-                }
-            } else {
-
-                cikisYap();
-                sonuc = "\nDöküman okunamadý !\nSisteme ayný anda giriþ yapýlmak isteniyor olabilir !\n";
-                islemMesaj += sonuc;
-                System.out.println("Hata-1 : " + sonuc);
+            loginCookies = respGet.cookies();
+            }
+            catch(Exception c){
+                System.out.println("HATA : "+c.getMessage()+" Trace : "+c.getStackTrace());
             }
 
-            oturumAcikMi = true;
+            try {
 
-        } catch (Exception e) {
+                Connection.Response resp = Jsoup.connect(url)
+                        .data("KullaniciAdi", kullaniciAdi)
+                        .data("Sifre", sifre)
+                        .data("gonder", gonder)
+                        .timeout(50000)
+                        .userAgent("Mozilla")
+                        .cookies(loginCookies)
+                        // and other hidden fields which are being passed in post request.
+                        .method(Connection.Method.POST)
+                        .execute();
 
-            cikisYap();
-            System.out.println(e.getMessage());
-            sonuc = e.getMessage();
-            // hataya duserse sistemden cikis yap !
+                if (loginCookies == null || loginCookies.isEmpty()) {
+                    loginCookies = resp.cookies();
+                }
 
+                Document doc = resp.parse();
+
+                System.out.println(doc);
+
+                if (doc != null) {
+                    Element context = doc.getElementById("menu");
+
+                    Elements links = doc.select("a[href]");
+
+                    Element arananLink = null;
+
+                    for (Element link : links) {
+                        System.out.println("Link : " + link);
+
+                        if (link.attr("href").equalsIgnoreCase(anasayfaUrl)) {
+                            System.out.println("Kullanýcý Adý >> " + link.text());
+                            arananLink = link;
+                            break;
+                        }
+                    }
+
+                    // sisteme belirledigimiz kullanici adi ile girilmis ise,
+                    if (arananLink.text().equalsIgnoreCase(kullaniciAdi)) {
+                        sonuc = arananLink.text().trim();
+                        girisYapilanKullaniciAdi = sonuc;
+                    } else {
+                        sonuc = "Kullanici Adi veya Þifre HATALI !";
+                        islemMesaj += "Kullanici Adi veya Þifre HATALI !";
+                        //cikisYap();
+                    }
+
+                    if (context != null) {
+                        Elements uller = context.select("ul.navbar-nav");// .getElementsByClass("nav navbar-nav");
+
+                        if (uller != null) {
+                            Elements tags = uller.first().getElementsByTag("a");
+
+                            System.out.println("Tags Text : " + tags.text());
+
+                            sonuc = tags.text();
+                        }
+                    }
+                } else {
+
+                   //cikisYap();
+                    sonuc = "\nDöküman okunamadý !\nSisteme ayný anda giriþ yapýlmak isteniyor olabilir !\n";
+                    islemMesaj += sonuc;
+                    System.out.println("Hata-1 : " + sonuc);
+                }
+
+                oturumAcikMi = true;
+
+            } catch (Exception e) {
+
+                //cikisYap();
+                System.out.println(e.getMessage());
+                sonuc = e.getMessage();
+                // hataya duserse sistemden cikis yap !
+            }
         }
 
         return sonuc;
@@ -658,8 +794,8 @@ public class mainFrame extends javax.swing.JFrame {
                     .timeout(5000)
                     .method(Connection.Method.GET)
                     .execute();
-             
-             Document doc = resp.parse();
+
+            Document doc = resp.parse();
 
             System.out.println(doc);
 
