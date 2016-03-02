@@ -1,0 +1,67 @@
+﻿https://www.csb.gov.tr/birimfiyat/
+
+
+JSOUP
+
+String url = "http://www.csb.gov.tr/birimfiyat/uyeislemleri.php?id=1";
+String urlParameters = "&KullaniciAdi=bayiller8&Sifre=11111111&gonder=Giri%FE";
+
+ Document doc =  Jsoup.connect(url)
+                .data("KullaniciAdi","bayiller8")
+                .data("Sifre","11111111")
+                .data("gonder","Giri%FE")
+		.post();
+
+bayiller8
+11111111
+
+
+
+arama
+https://www.csb.gov.tr/birimfiyat/index.php?Sayfa=arama
+
+701-101 vs.
+
+
+
+ARama script
+function RayicAra()
+{
+	document.Liste.action = "";
+	document.Liste.Std_Page.value = "";
+	document.Liste.submit();
+}
+function PozDetay(val)
+{
+	document.Liste.action = "index.php?Sayfa=aramadetay";
+	document.Liste.DetayPozNo.value = val;
+	document.Liste.submit();
+}
+	window.location.hash = '#icerik';
+	
+	
+	---------------- ---------------- ---------------- ---------------- ----------------
+	
+	
+	Giriş Script
+	
+	function KontrolEtVeGonder()
+{
+	if (document.webmesaj.KullaniciAdi.value == "") {
+		window.alert("Lütfen kullanıcı adını giriniz ..");
+		document.webmesaj.KullaniciAdi.focus();
+		return;
+	}
+	if (document.webmesaj.Sifre.value == "") {
+		window.alert("Lütfen şifrenizi giriniz ..");
+		document.webmesaj.Sifre.focus();
+		return;
+	}
+
+	document.webmesaj.action = "uyeislemleri.php?id=1";
+	document.webmesaj.submit();
+}
+
+document.webmesaj.KullaniciAdi.focus();
+
+	
