@@ -9,7 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -55,10 +54,13 @@ public class mainFrame extends javax.swing.JFrame {
     // Sistem degiskenleri
     private static String islemMesaj = "";
     private static File okunacakExcel;
-    private static File yazilacakExcel;
+    private static File yazilacakExcelFile;
     private static Boolean oturumAcikMi = false;
     private static String girisYapilanKullaniciAdi = "";
-    private static  Map<String, String[]> data ;
+    private static Map<String, String[]> data;
+    private static XSSFWorkbook yazilacakExcel;
+    private static XSSFSheet yazilacakExcelSayfasi;
+    private static int indis;
 
     /**
      * Creates new form mainFrame
@@ -68,9 +70,34 @@ public class mainFrame extends javax.swing.JFrame {
 
         // proxy ayarla.
         setProxySettings();
-        
+
+        indis = 1;
+
         data = new TreeMap<String, String[]>();
         data.put("1", new String[]{"Poz No", "Konu", "Miktar", "Birim Fiyat", "Montaj"});
+
+        yazilacakExcel = new XSSFWorkbook();
+
+        yazilacakExcelSayfasi = yazilacakExcel.createSheet("Csb_birim_fiyat");
+    }
+
+    public mainFrame(String yeniKullaniciAdi, String yeniSifre) {
+        initComponents();
+
+        // proxy ayarla.
+        setProxySettings();
+
+        indis = 1;
+
+        kullaniciAdi = yeniKullaniciAdi;
+        sifre = yeniSifre;
+
+        data = new TreeMap<String, String[]>();
+        data.put("1", new String[]{"Poz No", "Konu", "Miktar", "Birim Fiyat", "Montaj"});
+
+        yazilacakExcel = new XSSFWorkbook();
+
+        yazilacakExcelSayfasi = yazilacakExcel.createSheet("Csb_birim_fiyat");
     }
 
     /**
@@ -86,15 +113,10 @@ public class mainFrame extends javax.swing.JFrame {
         txtMesaj = new javax.swing.JTextArea();
         btnOturumAc = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        btnCikisYap = new javax.swing.JButton();
         txtDosyaAdi = new javax.swing.JTextField();
         btnDosyaSec = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        txtYazilacakDosya = new javax.swing.JTextField();
-        btnYazilacakDosyaSec = new javax.swing.JButton();
         btnIslem = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -111,14 +133,11 @@ public class mainFrame extends javax.swing.JFrame {
                 formWindowClosing(evt);
             }
         });
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         txtMesaj.setColumns(20);
         txtMesaj.setRows(5);
         jScrollPane1.setViewportView(txtMesaj);
         txtMesaj.getAccessibleContext().setAccessibleName("txtMesaj");
-
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 218, 581, -1));
 
         btnOturumAc.setForeground(new java.awt.Color(0, 153, 0));
         btnOturumAc.setText("Oturum Aç");
@@ -127,29 +146,11 @@ public class mainFrame extends javax.swing.JFrame {
                 btnOturumAcActionPerformed(evt);
             }
         });
-        getContentPane().add(btnOturumAc, new org.netbeans.lib.awtextra.AbsoluteConstraints(118, 6, 126, -1));
 
         jLabel1.setForeground(new java.awt.Color(0, 0, 255));
         jLabel1.setText("Oturum Aç :");
-        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 11, -1, -1));
-
-        jLabel2.setForeground(new java.awt.Color(255, 51, 51));
-        jLabel2.setText("Çýkýþ Yap :");
-        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(355, 11, -1, -1));
-
-        btnCikisYap.setForeground(new java.awt.Color(204, 0, 51));
-        btnCikisYap.setText("Güvenli Çýkýþ Yap !");
-        btnCikisYap.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCikisYapActionPerformed(evt);
-            }
-        });
-        getContentPane().add(btnCikisYap, new org.netbeans.lib.awtextra.AbsoluteConstraints(434, 6, 146, -1));
-        btnCikisYap.getAccessibleContext().setAccessibleName("btnCikisYap");
 
         txtDosyaAdi.setText("Okunacak Dosya Adý ...");
-        getContentPane().add(txtDosyaAdi, new org.netbeans.lib.awtextra.AbsoluteConstraints(238, 67, 240, -1));
-        txtDosyaAdi.getAccessibleContext().setAccessibleName("txtDosyaAdi");
 
         btnDosyaSec.setText("Seç");
         btnDosyaSec.addActionListener(new java.awt.event.ActionListener() {
@@ -157,29 +158,11 @@ public class mainFrame extends javax.swing.JFrame {
                 btnDosyaSecActionPerformed(evt);
             }
         });
-        getContentPane().add(btnDosyaSec, new org.netbeans.lib.awtextra.AbsoluteConstraints(496, 68, 85, -1));
-        btnDosyaSec.getAccessibleContext().setAccessibleName("btnDosyaSec");
 
         jLabel3.setText("Okunacak Excel Dosyasýný Seçiniz");
-        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 73, -1, -1));
 
         jLabel4.setForeground(new java.awt.Color(0, 153, 153));
         jLabel4.setText("Bilgilendirme ");
-        getContentPane().add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 196, -1, -1));
-
-        jLabel5.setText("Yazýlacak Excel Dosyasýný Seçiniz ");
-        getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 120, -1, -1));
-
-        txtYazilacakDosya.setText("Yazýlacak Dosya Adý ...");
-        getContentPane().add(txtYazilacakDosya, new org.netbeans.lib.awtextra.AbsoluteConstraints(238, 114, 240, -1));
-
-        btnYazilacakDosyaSec.setText("Seç");
-        btnYazilacakDosyaSec.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnYazilacakDosyaSecActionPerformed(evt);
-            }
-        });
-        getContentPane().add(btnYazilacakDosyaSec, new org.netbeans.lib.awtextra.AbsoluteConstraints(496, 115, 85, -1));
 
         btnIslem.setBackground(new java.awt.Color(0, 0, 153));
         btnIslem.setFont(new java.awt.Font("Malayalam MN", 0, 13)); // NOI18N
@@ -190,13 +173,17 @@ public class mainFrame extends javax.swing.JFrame {
                 btnIslemActionPerformed(evt);
             }
         });
-        getContentPane().add(btnIslem, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 156, 575, -1));
 
         jMenu1.setText("Ayarlar");
 
         jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
         jMenuItem1.setActionCommand("ayarMenu");
         jMenuItem1.setLabel("Farklý Bilgilerle Giriþ Yap");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem1);
         jMenuItem1.getAccessibleContext().setAccessibleName("ayarMenu");
         jMenuItem1.getAccessibleContext().setAccessibleDescription("");
@@ -204,6 +191,62 @@ public class mainFrame extends javax.swing.JFrame {
         jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(12, 12, 12)
+                        .addComponent(btnOturumAc, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtDosyaAdi, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnDosyaSec, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(3, 3, 3))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnIslem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(3, 3, 3))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(5, 5, 5)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(5, 5, 5)
+                        .addComponent(jLabel1))
+                    .addComponent(btnOturumAc))
+                .addGap(26, 26, 26)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(txtDosyaAdi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(btnDosyaSec))
+                .addGap(21, 21, 21)
+                .addComponent(btnIslem)
+                .addGap(25, 25, 25)
+                .addComponent(jLabel4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        txtDosyaAdi.getAccessibleContext().setAccessibleName("txtDosyaAdi");
+        btnDosyaSec.getAccessibleContext().setAccessibleName("btnDosyaSec");
 
         getAccessibleContext().setAccessibleName("mainFrame");
 
@@ -249,12 +292,10 @@ public class mainFrame extends javax.swing.JFrame {
         txtMesaj.setText(islemMesaj);
     }//GEN-LAST:event_btnOturumAcActionPerformed
 
-    private void btnCikisYapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCikisYapActionPerformed
-       // cikisYap();
-        oturumAcikMi = false;
-    }//GEN-LAST:event_btnCikisYapActionPerformed
-
     private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        islemMesaj += " Cýkýþ yapýlarak sistem kapatýlýyor lütfen bekleyiniz !\n";
+        txtMesaj.setText(islemMesaj);
+
         cikisYap();
         oturumAcikMi = false;
     }//GEN-LAST:event_formWindowClosed
@@ -273,7 +314,7 @@ public class mainFrame extends javax.swing.JFrame {
         int dialogResult = fc.showOpenDialog(null);
 
         if (dialogResult == JFileChooser.OPEN_DIALOG) {
-            System.out.println("Dialog acildi !");
+           // System.out.println("Dialog acildi !");
 
             if (dialogResult == JFileChooser.APPROVE_OPTION) {
                 okunacakExcel = fc.getSelectedFile();
@@ -284,36 +325,6 @@ public class mainFrame extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_btnDosyaSecActionPerformed
-
-    /**
-     * Yazýlacak excel dosyasini sececek olan method
-     *
-     * @param evt
-     */
-    private void btnYazilacakDosyaSecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnYazilacakDosyaSecActionPerformed
-
-        if (okunacakExcel != null && okunacakExcel.isFile()) {
-
-            final JFileChooser fc = new JFileChooser();
-            FileFilter filter = new FileNameExtensionFilter("Excel Dosyalarý", "xlsx", "xls");
-            fc.addChoosableFileFilter(filter);
-
-            int dialogResult = fc.showOpenDialog(null);
-
-            if (dialogResult == JFileChooser.OPEN_DIALOG) {
-                System.out.println("Dialog acildi !");
-
-                if (dialogResult == JFileChooser.APPROVE_OPTION) {
-                    yazilacakExcel = fc.getSelectedFile();
-                    txtYazilacakDosya.setText(fc.getSelectedFile().getName());
-                    islemMesaj += "Yazýlacak Excel dosyasý seçildi : " + fc.getSelectedFile().getAbsolutePath() + "\n";
-                    txtMesaj.setText(islemMesaj);
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(null, "Öncelikle Okunacak Excel Dosyasýný Girmelisiniz !\n", "UYARI", JOptionPane.WARNING_MESSAGE);
-        }
-    }//GEN-LAST:event_btnYazilacakDosyaSecActionPerformed
 
     /**
      * okunacak excel dosyasindan kodlari okuyacak, ilgili proje kodlari için
@@ -342,7 +353,8 @@ public class mainFrame extends javax.swing.JFrame {
                     } catch (Exception e) {
                         islemMesaj += "Excel Sayfasý Okunamadý !\n";
                     }
-// Finds the workbook instance for XLSX file 
+
+                    String pozNoSutun, konuSutun, adetSutun;
 
 // Return first sheet from the XLSX workbook 
                     XSSFSheet mySheet = myWorkBook.getSheetAt(0);
@@ -355,17 +367,21 @@ public class mainFrame extends javax.swing.JFrame {
                         row = rowIterator.next(); // ilk satir
 // For each row, iterate through each columns 
                         // Iterator<Cell> cellIterator = row.cellIterator();
-                        Cell pozNoSutun = row.getCell(0);
-                        Cell fiyatSutun = row.getCell(3);
+                        pozNoSutun = row.getCell(0).toString();
+                        konuSutun = row.getCell(1).toString();
+                        adetSutun = row.getCell(2).toString();
                         //while (cellIterator.hasNext()) {
                         //Cell cell = cellIterator.next();
+                        String digerBirimFiyat = birimFiyatDetayGetir(pozNoSutun, konuSutun, adetSutun);
+
+                        /*
                         switch (pozNoSutun.getCellType()) {
                             case Cell.CELL_TYPE_STRING:
 
                                 System.out.println(pozNoSutun.getStringCellValue() + "\t");
 
                                 //  String birimFiyat = birimFiyatGetir(pozNoSutun.getStringCellValue());
-                                String digerBirimFiyat = birimFiyatDetayGetir(pozNoSutun.getStringCellValue());
+                                String digerBirimFiyat = birimFiyatDetayGetir(pozNoSutun.getStringCellValue(), konuSutun.getStringCellValue(), adetSutun.getStringCellValue());
 
                                 break;
                             case Cell.CELL_TYPE_NUMERIC:
@@ -375,7 +391,7 @@ public class mainFrame extends javax.swing.JFrame {
                                 System.out.print(pozNoSutun.getBooleanCellValue() + "\t");
                                 break;
                             default:
-                        }
+                        }*/
                         // }
                         System.out.println("");
                     }
@@ -387,9 +403,13 @@ public class mainFrame extends javax.swing.JFrame {
 
                     islemMesaj += " File IOException  !\n";
                     Logger.getLogger(mainFrame.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                } finally {
+                    JOptionPane.showMessageDialog(null, "ÝÞLEM TAMAMLANDI ! \n", "Bilgilendirme", JOptionPane.INFORMATION_MESSAGE);
 
-                txtMesaj.setText(islemMesaj);
+                    islemMesaj += "ÝÞLEM TAMAMLANDI ! \n";
+
+                    txtMesaj.setText(islemMesaj);
+                }
             } else {
                 JOptionPane.showMessageDialog(null, "Oturum açýk olduðundan ve okunacak/yazýlacak excel dosyalarýný seçtiðinizden emin olunuz ! \n", "HATA", JOptionPane.ERROR_MESSAGE);
 
@@ -411,18 +431,28 @@ public class mainFrame extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         // TODO add your handling code here:
         cikisYap();
-        oturumAcikMi=false;
+        oturumAcikMi = false;
     }//GEN-LAST:event_formWindowClosing
 
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+
+        loginForm lF = new loginForm(kullaniciAdi, sifre);
+
+        lF.setEnabled(true);
+        lF.setVisible(true);
+        this.setEnabled(false);
+        this.setVisible(false);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
     /**
-     * Get ile istekte bulunup birim ilgili poz numarasýna ait ürün için birim
-     * fiyat getirecek.
+     * !! KULLANILMIYOR !! Get ile istekte bulunup birim ilgili poz numarasýna
+     * ait ürün için birim fiyat getirecek.
      *
      * @param pozNo : excelden okunan poz numarasi degeri string
      * @return : poz numarasýna göre get ile istekten dönen birim fiyat bilgisi
      * string olarak döndürülür.
      */
-    public String birimFiyatGetir(String pozNo) {
+    public String birimFiyatGetir(String pozNo, String konu, String miktar) {
 
         String birimFiyat = "-";
         Boolean basariliMi = false;
@@ -472,7 +502,7 @@ public class mainFrame extends javax.swing.JFrame {
                     }
                     if (basariliMi) {
                         result = "Poz No : " + detayPozNo + " detay bulundu !\n";
-                        birimFiyat = birimFiyatDetayGetir(detayPozNo);
+                        birimFiyat = birimFiyatDetayGetir(detayPozNo, konu, miktar);
 
                         System.out.println("Arama Ekraný - Poz No : " + detayPozNo + " Birim Fiyat : " + birimFiyat + "\n");
                     } else {
@@ -498,50 +528,82 @@ public class mainFrame extends javax.swing.JFrame {
 
     }
 
-    public String writeExcel(String[] yazilacakData, File yazilacakDosya) {
+    /**
+     *
+     * @param yazilacakData : String dizi olarak alýnýr. Satir no, poz no, konu
+     * miktar birim fiyat içerir
+     * @param yazilacakDosya : yazilacak excel dosyasinin file tipindeki tanimi
+     * @param param : 0: baslik, 1:icerik
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public String writeExcel(String[] yazilacakData, File yazilacakDosya, int param) throws FileNotFoundException, IOException {
 
         String sonuc = "";
 
-        //Blank workbook
-        XSSFWorkbook workbook = new XSSFWorkbook();
+        FileOutputStream out = new FileOutputStream(yazilacakDosya);
 
-        //Create a blank sheet
-        XSSFSheet sheet = workbook.createSheet("Employee Data");
-
-        //This data needs to be written (Object[])
-       
-        data.put("2", new String[]{"1", "Amit", "Shukla"});
-        data.put("3", new String[]{"2", "Lokesh", "Gupta"});
-        data.put("4", new String[]{"3", "John", "Adwards"});
-        data.put("5", new String[]{"4", "Brian", "Schultz"});
-
-        //Iterate over data and write to sheet
-        Set<String> keyset = data.keySet();
-        int rownum = 0;
-        for (String key : keyset) {
-            Row row = sheet.createRow(rownum++);
-            Object[] objArr = data.get(key);
-            int cellnum = 0;
-            for (Object obj : objArr) {
-                Cell cell = row.createCell(cellnum++);
-                if (obj instanceof String) {
-                    cell.setCellValue((String) obj);
-                } else if (obj instanceof Integer) {
-                    cell.setCellValue((Integer) obj);
+        // Dosya yeni olusturulmus o halde baslik sutunlarini direk dosyay yaz ve
+        // dosya icerigini temizle.
+        if (param == 0) {
+            
+            Set<String> keyset = data.keySet();
+            
+            int rownum = yazilacakExcelSayfasi.getPhysicalNumberOfRows(); // or sheet.getLastRowNum();
+            
+            for (String key : keyset) {
+                Row row = yazilacakExcelSayfasi.createRow(rownum++);
+                Object[] objArr = data.get(key);
+                int cellnum = 0;
+                for (Object obj : objArr) {
+                    Cell cell = row.createCell(cellnum++);
+                    if (obj instanceof String) {
+                        cell.setCellValue((String) obj);
+                    } else if (obj instanceof Integer) {
+                        cell.setCellValue((Integer) obj);
+                    }
                 }
             }
-        }
-        try {
-            //Write the workbook in file system
-            FileOutputStream out = new FileOutputStream(yazilacakDosya);
-            workbook.write(out);
+            
+            yazilacakExcel.write(out);
             out.close();
+            data.clear();
 
-            sonuc = yazilacakDosya.getAbsolutePath() + " dosyasina basariyla yazildi !\n";
-            islemMesaj += sonuc;
-            System.out.println(yazilacakDosya.getAbsolutePath() + "   basariyla yazildi !\n");
-        } catch (Exception e) {
-            e.printStackTrace();
+            islemMesaj += "Excel baþlýklarý eklendi ! \n";
+        } else {
+            data.clear();
+            data.put(String.valueOf(yazilacakExcelSayfasi.getPhysicalNumberOfRows()), yazilacakData);
+
+            //Iterate over data and write to sheet
+            Set<String> keyset = data.keySet();
+
+            int rownum = yazilacakExcelSayfasi.getPhysicalNumberOfRows(); // or sheet.getLastRowNum();
+            // int rownum = 0;
+
+            for (String key : keyset) {
+                Row row = yazilacakExcelSayfasi.createRow(rownum++);
+                Object[] objArr = data.get(key);
+                int cellnum = 0;
+                for (Object obj : objArr) {
+                    Cell cell = row.createCell(cellnum++);
+                    if (obj instanceof String) {
+                        cell.setCellValue((String) obj);
+                    } else if (obj instanceof Integer) {
+                        cell.setCellValue((Integer) obj);
+                    }
+                }
+            }
+            try {
+                yazilacakExcel.write(out);
+                out.close();
+
+                sonuc = yazilacakDosya.getAbsolutePath() + " dosyasina basariyla yazildi !\n";
+                islemMesaj += sonuc;
+                System.out.println(yazilacakDosya.getAbsolutePath() + "   basariyla yazildi !\n");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         txtMesaj.setText(islemMesaj);
@@ -555,14 +617,12 @@ public class mainFrame extends javax.swing.JFrame {
      * @param detayPozNo : detay poz numarasi
      * @return birimfiyat
      */
-    public String birimFiyatDetayGetir(String detayPozNo) throws IOException {
+    public String birimFiyatDetayGetir(String detayPozNo, String konu, String miktar) throws IOException {
 
         String birimFiyat = "-";
         String maxBirimFiyat = "-";
-        String konu = "-";
-        String miktar = "AD";
 
-        String[] data = new String[4];
+        String[] data = new String[6];
 
         String arananPozNo;
         Boolean basariliMi = false;
@@ -570,24 +630,24 @@ public class mainFrame extends javax.swing.JFrame {
         String url = siteUrl + aramaDetayUrl;
         String result = " \n";
 
-        File yeniolustur = new File(okunacakExcel.getParent() + "/yeni_excel.xlsx");
+        File yeniolustur = new File(okunacakExcel.getParent() + "/yeni_csb_birim_fiyat_" + Calendar.getInstance().get(Calendar.YEAR) + ".xlsx");
 
         if (yeniolustur.exists()) {
             System.out.println("Dosya zaten var !\n");
-            yazilacakExcel = yeniolustur;
+            islemMesaj += "Dosya zaten var ! \n";
+            yazilacakExcelFile = yeniolustur;
         } else if (yeniolustur.createNewFile()) {
-            yazilacakExcel = yeniolustur;
+            yazilacakExcelFile = yeniolustur;
+            // dosya ilk olusturuldugunda basliklari yazsin.
+            writeExcel(data, yazilacakExcelFile, 0);
+
         } else {
             System.out.println("Dosya olusturulamadi !\n");
+            islemMesaj += "Dosya Olusturulamadi ! \n";
         }
 
-        FileOutputStream fos = new FileOutputStream(yazilacakExcel);
-
         try {
-
             arananPozNo = detayPozNo;
-
-            URL obj = new URL(url);
 
             Document doc = Jsoup.connect(url)
                     .data("DetayPozNo", arananPozNo)
@@ -597,17 +657,16 @@ public class mainFrame extends javax.swing.JFrame {
                     .data("Tanim", "")
                     .data("TumAlan", "")
                     .userAgent("Mozilla")
+                    .timeout(50000)
                     .cookies(loginCookies)
                     .post();
 
-            System.out.println(doc);
+           // System.out.println(doc);
 
             if (doc != null) {
                 Elements tables = doc.select("table.table.table-striped");
 
                 Elements satirlar = tables.get(1).select("tr");
-
-                int indis = 1;
 
                 for (Element satir : satirlar) {
 
@@ -620,12 +679,17 @@ public class mainFrame extends javax.swing.JFrame {
 
                         data[0] = String.valueOf(indis);
                         data[1] = arananPozNo;
-                        data[2] = String.valueOf(maxBirimFiyat);
-                        data[3] = String.valueOf(birimFiyat);
+                        data[2] = konu;
+                        data[3] = miktar;
+                        data[4] = String.valueOf(maxBirimFiyat);
+                        data[5] = String.valueOf(birimFiyat);
 
-                        writeExcel(data, yazilacakExcel);
+                        writeExcel(data, yazilacakExcelFile, 1);
 
-                        System.out.println("Detay Arama Ekraný - Poz No : " + arananPozNo + " Birim Fiyat : " + birimFiyat + " Max Birim Fiyat : " + maxBirimFiyat + "\n");
+                        System.out.println("Detay Arama Ekraný - Poz No : " + arananPozNo + " Konu : " + konu + " Birim Fiyat : " + birimFiyat + " Max Birim Fiyat : " + maxBirimFiyat + "\n");
+                        islemMesaj += "Detay Arama Ekraný - Poz No : " + arananPozNo + " Konu : " + konu + " Birim Fiyat : " + birimFiyat + " Max Birim Fiyat : " + maxBirimFiyat + "\n";
+
+                        indis++;
                     }
                     if (basariliMi) {
                         break;
@@ -635,6 +699,16 @@ public class mainFrame extends javax.swing.JFrame {
                     result = maxBirimFiyat + "#" + birimFiyat;
                 } else {
                     result = "Sonuç (Detay) BULUNAMADI ! Poz No : " + arananPozNo + "\n";
+
+                    data[0] = String.valueOf(indis);
+                    data[1] = arananPozNo;
+                    data[2] = konu;
+                    data[3] = miktar;
+                    data[4] = "Fiyat Belirlenmemiþ";
+                    data[5] = "Fiyat Belirlenmemiþ";
+
+                    writeExcel(data, yazilacakExcelFile, 1);
+                    indis++;
                 }
             } else {
                 result = " Birim Fiyat Okunamadý ! Poz No :  " + arananPozNo + "\n";
@@ -644,7 +718,8 @@ public class mainFrame extends javax.swing.JFrame {
             System.out.println(e.getMessage());
             result += e.getMessage() + "\n";
         } finally {
-            islemMesaj += " Birim Fiyat Okuma Ýþlemi " + result;
+
+            islemMesaj += result + "\nBirim Fiyat Okuma Ýþlemi " + result + "\n";
             txtMesaj.setText(islemMesaj);
         }
 
@@ -672,25 +747,24 @@ public class mainFrame extends javax.swing.JFrame {
     public String logIn() throws MalformedURLException {
 
         String sonuc = "";
-
         String url = siteUrl + logInUrl;
-
-        URL obj = new URL(url);
 
         if (!oturumAcikMi && loginCookies == null) {
 
-            try{
-            Connection.Response respGet = Jsoup.connect(url)
-                    .timeout(5000)
-                    .userAgent("Mozilla")
-                    // and other hidden fields which are being passed in post request.
-                    .method(Connection.Method.GET)
-                    .execute();
+            try {
+                Connection.Response respGet = Jsoup.connect(url)
+                        .timeout(5000)
+                        .userAgent("Mozilla")
+                        // and other hidden fields which are being passed in post request.
+                        .method(Connection.Method.GET)
+                        .execute();
 
-            loginCookies = respGet.cookies();
-            }
-            catch(Exception c){
-                System.out.println("HATA : "+c.getMessage()+" Trace : "+c.getStackTrace());
+                loginCookies = respGet.cookies();
+            } catch (Exception c) {
+                System.out.println("HATA : " + c.getMessage() + " Trace : " + c.getStackTrace());
+                
+                islemMesaj +="Sayfaya ulaþýlamýyor !\n";
+                
             }
 
             try {
@@ -711,8 +785,7 @@ public class mainFrame extends javax.swing.JFrame {
                 }
 
                 Document doc = resp.parse();
-
-                System.out.println(doc);
+               // System.out.println(doc);
 
                 if (doc != null) {
                     Element context = doc.getElementById("menu");
@@ -735,6 +808,7 @@ public class mainFrame extends javax.swing.JFrame {
                     if (arananLink.text().equalsIgnoreCase(kullaniciAdi)) {
                         sonuc = arananLink.text().trim();
                         girisYapilanKullaniciAdi = sonuc;
+                        islemMesaj += girisYapilanKullaniciAdi + " kullanýcý adý ile giriþ yapýldý ! \n";
                     } else {
                         sonuc = "Kullanici Adi veya Þifre HATALI !";
                         islemMesaj += "Kullanici Adi veya Þifre HATALI !";
@@ -754,7 +828,7 @@ public class mainFrame extends javax.swing.JFrame {
                     }
                 } else {
 
-                   //cikisYap();
+                    //cikisYap();
                     sonuc = "\nDöküman okunamadý !\nSisteme ayný anda giriþ yapýlmak isteniyor olabilir !\n";
                     islemMesaj += sonuc;
                     System.out.println("Hata-1 : " + sonuc);
@@ -764,10 +838,14 @@ public class mainFrame extends javax.swing.JFrame {
 
             } catch (Exception e) {
 
+                islemMesaj += "Kullanýcý adý ve/veya þifre hatalý olabilir.!\nKontrol ettikten sonra tekrar deneyiniz. !\n";
                 //cikisYap();
                 System.out.println(e.getMessage());
                 sonuc = e.getMessage();
                 // hataya duserse sistemden cikis yap !
+            }
+            finally{
+                txtMesaj.setText(islemMesaj);
             }
         }
 
@@ -853,22 +931,17 @@ public class mainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnCikisYap;
     private javax.swing.JButton btnDosyaSec;
     private javax.swing.JButton btnIslem;
     private javax.swing.JButton btnOturumAc;
-    private javax.swing.JButton btnYazilacakDosyaSec;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField txtDosyaAdi;
     private javax.swing.JTextArea txtMesaj;
-    private javax.swing.JTextField txtYazilacakDosya;
     // End of variables declaration//GEN-END:variables
 }
