@@ -61,6 +61,7 @@ public class mainFrame extends javax.swing.JFrame {
     private static XSSFWorkbook yazilacakExcel;
     private static XSSFSheet yazilacakExcelSayfasi;
     private static int indis;
+    private static int kullanilanYil;
 
     /**
      * Creates new form mainFrame
@@ -70,11 +71,13 @@ public class mainFrame extends javax.swing.JFrame {
 
         // proxy ayarla.
         setProxySettings();
+        kullanilanYil = Calendar.getInstance().get(Calendar.YEAR);
+        comboDoldur();
 
         indis = 1;
 
         data = new TreeMap<String, String[]>();
-        data.put("1", new String[]{"Poz No", "Konu", "Miktar", "Birim Fiyat", "Montaj"});
+        data.put("1", new String[]{"Sýra","Poz No", "Konu", "Miktar", "Birim Fiyat", "Montaj"});
 
         yazilacakExcel = new XSSFWorkbook();
 
@@ -86,6 +89,8 @@ public class mainFrame extends javax.swing.JFrame {
 
         // proxy ayarla.
         setProxySettings();
+        kullanilanYil = Calendar.getInstance().get(Calendar.YEAR);
+        comboDoldur();
 
         indis = 1;
 
@@ -93,11 +98,21 @@ public class mainFrame extends javax.swing.JFrame {
         sifre = yeniSifre;
 
         data = new TreeMap<String, String[]>();
-        data.put("1", new String[]{"Poz No", "Konu", "Miktar", "Birim Fiyat", "Montaj"});
+        data.put("1", new String[]{"Sýra", "Poz No", "Konu", "Miktar", "Birim Fiyat", "Montaj"});
 
         yazilacakExcel = new XSSFWorkbook();
 
         yazilacakExcelSayfasi = yazilacakExcel.createSheet("Csb_birim_fiyat");
+    }
+
+    public void comboDoldur() {
+
+        //yilCombo.removeAllItems();
+        yilCombo.removeAll();
+
+        for (int i = 0; i < 5; i++) {
+            yilCombo.addItem(String.valueOf(kullanilanYil - i));
+        }
     }
 
     /**
@@ -118,6 +133,8 @@ public class mainFrame extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         btnIslem = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        yilCombo = new java.awt.Choice();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -174,6 +191,9 @@ public class mainFrame extends javax.swing.JFrame {
             }
         });
 
+        jLabel2.setForeground(new java.awt.Color(0, 0, 204));
+        jLabel2.setText("Yýl Seçiniz :");
+
         jMenu1.setText("Ayarlar");
 
         jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_G, java.awt.event.InputEvent.ALT_MASK | java.awt.event.InputEvent.CTRL_MASK));
@@ -199,36 +219,46 @@ public class mainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(12, 12, 12)
-                        .addComponent(btnOturumAc, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(18, 18, 18)
-                        .addComponent(txtDosyaAdi, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnDosyaSec, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(3, 3, 3))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnIslem, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1)
+                                        .addGap(12, 12, 12)
+                                        .addComponent(btnOturumAc, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(yilCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel3)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(txtDosyaAdi, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(18, 18, 18)
+                                .addComponent(btnDosyaSec, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addGap(3, 3, 3))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(5, 5, 5)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(5, 5, 5)
-                        .addComponent(jLabel1))
-                    .addComponent(btnOturumAc))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(5, 5, 5)
+                                .addComponent(jLabel1))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(btnOturumAc)
+                                .addComponent(jLabel2))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(yilCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -241,7 +271,7 @@ public class mainFrame extends javax.swing.JFrame {
                 .addComponent(btnIslem)
                 .addGap(25, 25, 25)
                 .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -314,7 +344,7 @@ public class mainFrame extends javax.swing.JFrame {
         int dialogResult = fc.showOpenDialog(null);
 
         if (dialogResult == JFileChooser.OPEN_DIALOG) {
-           // System.out.println("Dialog acildi !");
+            // System.out.println("Dialog acildi !");
 
             if (dialogResult == JFileChooser.APPROVE_OPTION) {
                 okunacakExcel = fc.getSelectedFile();
@@ -335,6 +365,8 @@ public class mainFrame extends javax.swing.JFrame {
      */
     private void btnIslemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIslemActionPerformed
 
+        kullanilanYil = Integer.parseInt(yilCombo.getSelectedItem().toString() ) ;
+        
         if (loginCookies != null && !loginCookies.isEmpty() && girisYapilanKullaniciAdi.equalsIgnoreCase(kullaniciAdi)) {
 
             //String login = logIn();
@@ -475,13 +507,13 @@ public class mainFrame extends javax.swing.JFrame {
             Document doc = Jsoup.connect(url)
                     .data("cookieexists", "false")
                     .data("DetayPozNo", "")
-                    .data("Yil", String.valueOf(Calendar.getInstance().get(Calendar.YEAR)))
+                    .data("Yil", String.valueOf(kullanilanYil))
                     .data("PozTipi", "-1")
                     .data("PozNo", detayPozNo)
                     .data("Tanim", "")
                     .data("TumAlan", "")
                     .userAgent("Mozilla")
-                    .timeout(50000)
+                    .timeout(0)
                     .cookies(aramaCookies)
                     .post();
 
@@ -547,11 +579,11 @@ public class mainFrame extends javax.swing.JFrame {
         // Dosya yeni olusturulmus o halde baslik sutunlarini direk dosyay yaz ve
         // dosya icerigini temizle.
         if (param == 0) {
-            
+
             Set<String> keyset = data.keySet();
-            
+
             int rownum = yazilacakExcelSayfasi.getPhysicalNumberOfRows(); // or sheet.getLastRowNum();
-            
+
             for (String key : keyset) {
                 Row row = yazilacakExcelSayfasi.createRow(rownum++);
                 Object[] objArr = data.get(key);
@@ -565,7 +597,7 @@ public class mainFrame extends javax.swing.JFrame {
                     }
                 }
             }
-            
+
             yazilacakExcel.write(out);
             out.close();
             data.clear();
@@ -612,6 +644,7 @@ public class mainFrame extends javax.swing.JFrame {
     }
 
     /**
+     * GERCEK ÝS YAPAN METHOD
      * arama sayfasinda gelen sonuuca
      *
      * @param detayPozNo : detay poz numarasi
@@ -630,11 +663,11 @@ public class mainFrame extends javax.swing.JFrame {
         String url = siteUrl + aramaDetayUrl;
         String result = " \n";
 
-        File yeniolustur = new File(okunacakExcel.getParent() + "/yeni_csb_birim_fiyat_" + Calendar.getInstance().get(Calendar.YEAR) + ".xlsx");
+        File yeniolustur = new File(okunacakExcel.getParent() + "/yeni_csb_birim_fiyat_" + kullanilanYil + ".xlsx");
 
         if (yeniolustur.exists()) {
-            System.out.println("Dosya zaten var !\n");
-            islemMesaj += "Dosya zaten var ! \n";
+            //System.out.println("Dosya zaten var !\n");
+            //islemMesaj += "Dosya zaten var ! \n";
             yazilacakExcelFile = yeniolustur;
         } else if (yeniolustur.createNewFile()) {
             yazilacakExcelFile = yeniolustur;
@@ -651,18 +684,17 @@ public class mainFrame extends javax.swing.JFrame {
 
             Document doc = Jsoup.connect(url)
                     .data("DetayPozNo", arananPozNo)
-                    .data("Yil", String.valueOf(Calendar.getInstance().get(Calendar.YEAR)))
+                    .data("Yil", String.valueOf(kullanilanYil))
                     .data("PozTipi", "-1")
                     .data("PozNo", arananPozNo)
                     .data("Tanim", "")
                     .data("TumAlan", "")
                     .userAgent("Mozilla")
-                    .timeout(50000)
+                    .timeout(0)
                     .cookies(loginCookies)
                     .post();
 
-           // System.out.println(doc);
-
+            // System.out.println(doc);
             if (doc != null) {
                 Elements tables = doc.select("table.table.table-striped");
 
@@ -672,7 +704,8 @@ public class mainFrame extends javax.swing.JFrame {
 
                     Elements sutunlar = satir.select("td");
 
-                    if (sutunlar.get(0).text().trim().equalsIgnoreCase(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)))) {
+                    if (sutunlar.get(0).text().trim().equalsIgnoreCase(String.valueOf(kullanilanYil))) {
+
                         basariliMi = true;
                         maxBirimFiyat = sutunlar.get(1).text();
                         birimFiyat = sutunlar.get(2).text();
@@ -686,7 +719,7 @@ public class mainFrame extends javax.swing.JFrame {
 
                         writeExcel(data, yazilacakExcelFile, 1);
 
-                        System.out.println("Detay Arama Ekraný - Poz No : " + arananPozNo + " Konu : " + konu + " Birim Fiyat : " + birimFiyat + " Max Birim Fiyat : " + maxBirimFiyat + "\n");
+                        //System.out.println("Detay Arama Ekraný - Poz No : " + arananPozNo + " Konu : " + konu + " Birim Fiyat : " + birimFiyat + " Max Birim Fiyat : " + maxBirimFiyat + "\n");
                         islemMesaj += "Detay Arama Ekraný - Poz No : " + arananPozNo + " Konu : " + konu + " Birim Fiyat : " + birimFiyat + " Max Birim Fiyat : " + maxBirimFiyat + "\n";
 
                         indis++;
@@ -704,8 +737,8 @@ public class mainFrame extends javax.swing.JFrame {
                     data[1] = arananPozNo;
                     data[2] = konu;
                     data[3] = miktar;
-                    data[4] = "Fiyat Belirlenmemiþ";
-                    data[5] = "Fiyat Belirlenmemiþ";
+                    data[4] = kullanilanYil+" Ýçin Fiyat Belirlenmemiþ !";
+                    data[5] = kullanilanYil+" Ýçin Fiyat Belirlenmemiþ !";
 
                     writeExcel(data, yazilacakExcelFile, 1);
                     indis++;
@@ -715,10 +748,22 @@ public class mainFrame extends javax.swing.JFrame {
             }
         } catch (Exception e) {
             result = " HATA(101) - BÝRÝM FÝYAT OKUMA ÝÞLEMÝ BAÞARISIZ !";
+
+            result = "Sonuç (Detay) BULUNAMADI ! Poz No : " + detayPozNo + "\n";
+
+            data[0] = String.valueOf(indis);
+            data[1] = detayPozNo;
+            data[2] = konu;
+            data[3] = miktar;
+            data[4] = " ! SONUÇ YOK !";
+            data[5] = " ! SONUÇ YOK !";
+
+            writeExcel(data, yazilacakExcelFile, 1);
+            indis++;
+
             System.out.println(e.getMessage());
             result += e.getMessage() + "\n";
         } finally {
-
             islemMesaj += result + "\nBirim Fiyat Okuma Ýþlemi " + result + "\n";
             txtMesaj.setText(islemMesaj);
         }
@@ -753,7 +798,7 @@ public class mainFrame extends javax.swing.JFrame {
 
             try {
                 Connection.Response respGet = Jsoup.connect(url)
-                        .timeout(5000)
+                        .timeout(0)
                         .userAgent("Mozilla")
                         // and other hidden fields which are being passed in post request.
                         .method(Connection.Method.GET)
@@ -762,9 +807,9 @@ public class mainFrame extends javax.swing.JFrame {
                 loginCookies = respGet.cookies();
             } catch (Exception c) {
                 System.out.println("HATA : " + c.getMessage() + " Trace : " + c.getStackTrace());
-                
-                islemMesaj +="Sayfaya ulaþýlamýyor !\n";
-                
+
+                islemMesaj += "Sayfaya ulaþýlamýyor !\n";
+
             }
 
             try {
@@ -773,7 +818,7 @@ public class mainFrame extends javax.swing.JFrame {
                         .data("KullaniciAdi", kullaniciAdi)
                         .data("Sifre", sifre)
                         .data("gonder", gonder)
-                        .timeout(50000)
+                        .timeout(0)
                         .userAgent("Mozilla")
                         .cookies(loginCookies)
                         // and other hidden fields which are being passed in post request.
@@ -785,51 +830,58 @@ public class mainFrame extends javax.swing.JFrame {
                 }
 
                 Document doc = resp.parse();
-               // System.out.println(doc);
+                // System.out.println(doc);
 
                 if (doc != null) {
                     Element context = doc.getElementById("menu");
 
-                    Elements links = doc.select("a[href]");
+                    if (context != null && context.text().length() > 0) {
 
-                    Element arananLink = null;
+                        Elements links = doc.select("a[href]");
 
-                    for (Element link : links) {
-                        System.out.println("Link : " + link);
+                        Element arananLink = null;
 
-                        if (link.attr("href").equalsIgnoreCase(anasayfaUrl)) {
-                            System.out.println("Kullanýcý Adý >> " + link.text());
-                            arananLink = link;
-                            break;
+                        for (Element link : links) {
+                            System.out.println("Link : " + link);
+
+                            if (link.attr("href").equalsIgnoreCase(anasayfaUrl)) {
+                                System.out.println("Kullanýcý Adý >> " + link.text());
+                                arananLink = link;
+                                break;
+                            }
                         }
-                    }
 
-                    // sisteme belirledigimiz kullanici adi ile girilmis ise,
-                    if (arananLink.text().equalsIgnoreCase(kullaniciAdi)) {
-                        sonuc = arananLink.text().trim();
-                        girisYapilanKullaniciAdi = sonuc;
-                        islemMesaj += girisYapilanKullaniciAdi + " kullanýcý adý ile giriþ yapýldý ! \n";
+                        // sisteme belirledigimiz kullanici adi ile girilmis ise,
+                        if (arananLink.text().equalsIgnoreCase(kullaniciAdi)) {
+                            sonuc = arananLink.text().trim();
+                            girisYapilanKullaniciAdi = sonuc;
+                            islemMesaj += girisYapilanKullaniciAdi + " kullanýcý adý ile giriþ yapýldý ! \n";
+                        } else {
+                            sonuc = "Kullanici Adi veya Þifre HATALI !";
+                            islemMesaj += "Kullanici Adi veya Þifre HATALI !";
+                            //cikisYap();
+                        }
+
+                        if (context != null) {
+                            Elements uller = context.select("ul.navbar-nav");// .getElementsByClass("nav navbar-nav");
+
+                            if (uller != null) {
+                                Elements tags = uller.first().getElementsByTag("a");
+
+                                System.out.println("Tags Text : " + tags.text());
+
+                                sonuc = tags.text();
+                            }
+                        }
                     } else {
-                        sonuc = "Kullanici Adi veya Þifre HATALI !";
-                        islemMesaj += "Kullanici Adi veya Þifre HATALI !";
-                        //cikisYap();
-                    }
-
-                    if (context != null) {
-                        Elements uller = context.select("ul.navbar-nav");// .getElementsByClass("nav navbar-nav");
-
-                        if (uller != null) {
-                            Elements tags = uller.first().getElementsByTag("a");
-
-                            System.out.println("Tags Text : " + tags.text());
-
-                            sonuc = tags.text();
-                        }
+                        sonuc = "Ýçerik okunamadý - Ayný anda oturum açýlmak isteniyor olabilir !\n";
+                        islemMesaj += sonuc;
+                        System.out.println("Hata-2 : " + sonuc);
                     }
                 } else {
 
                     //cikisYap();
-                    sonuc = "\nDöküman okunamadý !\nSisteme ayný anda giriþ yapýlmak isteniyor olabilir !\n";
+                    sonuc = "\nDöküman okunamadý !\n";
                     islemMesaj += sonuc;
                     System.out.println("Hata-1 : " + sonuc);
                 }
@@ -843,8 +895,7 @@ public class mainFrame extends javax.swing.JFrame {
                 System.out.println(e.getMessage());
                 sonuc = e.getMessage();
                 // hataya duserse sistemden cikis yap !
-            }
-            finally{
+            } finally {
                 txtMesaj.setText(islemMesaj);
             }
         }
@@ -864,12 +915,10 @@ public class mainFrame extends javax.swing.JFrame {
 
         try {
 
-            URL obj = new URL(url);
-
             Connection.Response resp = Jsoup.connect(url)
                     .cookies(loginCookies)
                     .userAgent("Mozilla")
-                    .timeout(5000)
+                    .timeout(0)
                     .method(Connection.Method.GET)
                     .execute();
 
@@ -935,6 +984,7 @@ public class mainFrame extends javax.swing.JFrame {
     private javax.swing.JButton btnIslem;
     private javax.swing.JButton btnOturumAc;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
@@ -943,5 +993,6 @@ public class mainFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField txtDosyaAdi;
     private javax.swing.JTextArea txtMesaj;
+    private java.awt.Choice yilCombo;
     // End of variables declaration//GEN-END:variables
 }
